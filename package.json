@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "npx nodemon",
+    "build": "rimraf ./build && tsc"
+  },
+  "author": "rabeb",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "dotenv-safe": "^9.1.0",
+    "express": "^4.19.1",
+    "helmet": "^7.1.0",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.5.0",
+    "mongoose": "^8.2.3",
+    "nodemon": "^3.1.0",
+    "path": "^0.12.7",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "typescript": "^5.4.3"
+  }
+}

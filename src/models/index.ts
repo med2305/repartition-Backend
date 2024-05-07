@@ -1,0 +1,1 @@
+export const User = require("../models/user.model");
