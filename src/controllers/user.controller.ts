@@ -76,7 +76,7 @@ exports.count = async (req: Request, res: Response, next: NextFunction) => {
 };
 exports.list = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const users = await User.find({ role: 'technician' })
+    const users = await User.find()
       .select(" -password ")
       .sort({ createdAt: -1 })
     res.status(200).json(users);

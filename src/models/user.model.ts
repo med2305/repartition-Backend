@@ -11,7 +11,7 @@ interface IUser extends Document {
   role: typeof Role;
   phoneNumber: string;
   name: string;
-  category: string;
+  adress: string;
 }
 
 const userSchema = new Schema<IUser>(
@@ -41,11 +41,10 @@ const userSchema = new Schema<IUser>(
     phoneNumber: {
       type: String,
     },
-    category: {
+    name: {
       type: String,
     },
-
-    name: {
+    adress: {
       type: String,
     },
   },
