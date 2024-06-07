@@ -4,7 +4,6 @@ import { Document, Schema, model } from "mongoose";
 
 interface IUser extends Document {
   email: string;
-  no: string;
   password: string;
   createdAt: Date;
   updatedAt: Date;
@@ -16,9 +15,6 @@ interface IUser extends Document {
 
 const userSchema = new Schema<IUser>(
   {
-    no: {
-      type: String,
-    },
     email: {
       type: String,
       lowercase: true,
@@ -59,9 +55,6 @@ userSchema.statics.isEmailTaken = async function (email: string) {
   });
   return users.length > 0;
 };
-userSchema.statics.isNoTaken = async function (no, userId) {
-  const user = await this.findOne({ no, _id: { $ne: userId } });
-  return !!user;
-};
+
 module.exports = model<IUser>("User", userSchema);
 

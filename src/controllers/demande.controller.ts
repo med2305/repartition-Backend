@@ -9,19 +9,17 @@ exports.create = async (
   res: Response
 ) => {
   try {
-const { category, mark, range, model, problem, imei, description, photos, status, clientId, comments } = req.body;
+const { category, mark, range, model, imei, description, photo} = req.body;
+
     await new Demande({
       category,
       mark,
       range,
       model,
-      problem,
       imei,
       description,
-      photos,
-      status,
-      clientId,
-      comments,
+      photo,
+      status: "Nouveau"
     }).save();
     
     res.status(201).json({

@@ -14,7 +14,7 @@ exports.test = async () => {
           role: 'admin',
           phoneNumber: '12345678',
           name: 'defaultAdmin',
-          activated: true,
+          adress: 'sahloul',
         }).save();
     }
   } catch (error) {

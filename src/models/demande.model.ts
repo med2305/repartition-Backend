@@ -1,13 +1,13 @@
 export { };
 const { Status } = require("../utils/enums");
-import { Document, Schema, model, ObjectId } from "mongoose";
+import { Schema, model, ObjectId } from "mongoose";
 
 interface IComments {
     demandeId: ObjectId;
     userId: ObjectId;
 }
 
-interface IDemande extends Omit<Document, 'model'> {
+interface IDemande {
     category: string;
     mark: string;
     range: string;
@@ -15,15 +15,15 @@ interface IDemande extends Omit<Document, 'model'> {
     problem: string;
     imei: string;
     description: string;
-    photos: string;
+    photo: string;
     status: typeof Status;
     clientId: any;
     comments: IComments[];
 }
 
 const commentsSchema = new Schema<IComments>({
-    demandeId: { type: Schema.Types.ObjectId, ref: 'Demande', required: true, },
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, },
+    demandeId: { type: Schema.Types.ObjectId, ref: 'Demande' },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true, });
 
 const demandeSchema = new Schema<IDemande>(
@@ -35,9 +35,9 @@ const demandeSchema = new Schema<IDemande>(
         problem: { type: String },
         imei: { type: String },
         description: { type: String },
-        photos: { type: String },
+        photo: { type: String },
         status: { type: String, enum: Object.values(Status) },
-        clientId: { type: Schema.Types.ObjectId, ref: 'User', required: true, },
+        clientId: { type: Schema.Types.ObjectId, ref: 'User',},
         comments: { type: [commentsSchema], },
     }, { timestamps: true, }
 );
@@ -45,6 +45,5 @@ const demandeSchema = new Schema<IDemande>(
 
 
 module.exports = model<IDemande>("Demande", demandeSchema);
-module.exports = model<IComments>('avis', commentsSchema);
 
 

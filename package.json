@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "dev": "npx nodemon",
-    "build": "rimraf ./build && tsc"
+    "dev": "npx nodemon"
   },
   "author": "rabeb",
   "license": "ISC",

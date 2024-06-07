@@ -6,6 +6,8 @@ export enum Role {
 }
 
 export enum Status {
+  New = "Nouveau",
+  TechnicianAssigned = "technicien affecté",
   AwaitReciever = "En attente de réception",
   AwaitRepair = "En attente de réparation",
   UnderRepair = "En cours de réparation",

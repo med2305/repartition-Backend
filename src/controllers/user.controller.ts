@@ -10,12 +10,8 @@ exports.createUser = async (
   next: NextFunction
 ) => {
   try {
-    const { no, name, password, role, category, phoneNumber, email } = req.body;
+    const { name, password, role, adress, phoneNumber, email } = req.body;
 
-    const noTaken = await User.isNoTaken(no);
-    if (noTaken) {
-      return res.status(400).json({ message: "Ce No existe déja" });
-    }
 
     const isPrimaryEmailTaken = await User.isEmailTaken(email);
     if (isPrimaryEmailTaken)
@@ -26,13 +22,12 @@ exports.createUser = async (
     const hashedPassword = await bcrypt.hash(password, 12);
 
     await new User({
-      no,
       name,
       role,
       password: hashedPassword,
       phoneNumber,
       email,
-      category,
+      adress
     }).save();
     res.status(201).json({
       message: "user created",
@@ -94,49 +89,39 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const {
-      no,
       name,
       role,
       phoneNumber,
       email,
       password,
-      category,
+      adress,
     } = req.body;
 
     // Validate required fields
     if (
       !(
-        no ||
         name ||
         role ||
         phoneNumber ||
         email ||
         password ||
-        category
+        adress
       )
     ) {
       return res
         .status(400)
         .json({ error: "At least one variable is required" });
     }
-    if (no) {
-      const noTaken = await User.isNoTaken(no, userId);
-      if (noTaken) {
-        return res.status(400).json({ message: "Ce No existe déja" });
-      }
-    }
 
     const selectedFields: {
-      no?: any;
       name?: any;
       role?: any;
       phoneNumber?: any;
       email?: any;
       password?: any;
-      category?: any;
+      adress?: any;
     } = {};
 
-    if (no) selectedFields.no = no;
     if (name) selectedFields.name = name;
     if (role) selectedFields.role = role;
     if (phoneNumber) selectedFields.phoneNumber = phoneNumber;
@@ -145,7 +130,7 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
       const hashedPassword = await bcrypt.hash(password, 12);
       selectedFields.password = hashedPassword;
     }
-    if (category) selectedFields.category = category;
+    if (adress) selectedFields.adress = adress;
 
     const updatedUser = await User.findByIdAndUpdate(userId, selectedFields, { new: true });
 
