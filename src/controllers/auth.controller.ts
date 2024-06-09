@@ -1,9 +1,11 @@
-export {};
+export { };
 import { NextFunction, Response, Request } from "express";
 import { User } from "../models";
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { tokenKey } = require("../config/vars");
+const nodemailer = require('nodemailer');
+import crypto from 'crypto';
 
 exports.login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -20,11 +22,11 @@ exports.login = async (req: Request, res: Response, next: NextFunction) => {
         //  { role : 'user'}
       ],
     });
-    
+
     if (!_user) return res.status(404).json({ message: " utilisateur non trouvé" });
     const isMatch = await bcrypt.compare(password, _user.password);
     if (!isMatch) return res.status(404).json({ message: " mot de passe incorrect" });
-    
+
 
     const token = jwt.sign(
       {
@@ -73,6 +75,55 @@ exports.register = async (req: Request, res: Response, next: NextFunction) => {
     res.status(201).json({
       message: "User registered successfully",
       userId: savedUser._id
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.forgetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    console.log(req.body);
+    
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist" });
+    }
+
+    // Generate a random password
+    const newPassword = crypto.randomBytes(3).toString('hex');
+
+    // Hash the new password and update the user's password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    // Send the new password to the user's email
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: 'hamatestini@gmail.com',
+        pass: 'lgkdbpxczrdytzta',
+      },
+    });
+
+    const mailOptions = {
+      from: 'yourEmail@gmail.com',
+      to: email,
+      subject: 'Your new password',
+      text: `Your new password is ${newPassword}`
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+
+    res.status(200).json({
+      message: "New password has been sent to your email",
     });
   } catch (err) {
     console.error(err);
