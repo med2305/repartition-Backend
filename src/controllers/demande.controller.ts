@@ -3,13 +3,15 @@ import { NextFunction, Response, Request } from "express";
 import { Demande } from "../models";
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
+import { ObjectId } from 'mongodb';
+
 
 exports.create = async (
   req: Request,
   res: Response
 ) => {
   try {
-const { category, mark, range, model, imei, description, photo} = req.body;
+    const { category, mark, range, model, imei, description, photo } = req.body;
 
     await new Demande({
       category,
@@ -21,7 +23,7 @@ const { category, mark, range, model, imei, description, photo} = req.body;
       photo,
       status: "Nouveau"
     }).save();
-    
+
     res.status(201).json({
       message: "Demande created",
     });
@@ -64,12 +66,37 @@ exports.count = async (req: Request, res: Response, next: NextFunction) => {
 };
 exports.list = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const users = await Demande.find()
-      .sort({ createdAt: -1 })
-    res.status(200).json(users);
+    const { status, technicianId, deliveryId } = req.query as { status: string; technicianId: string; deliveryId: string };
+    interface Filter {
+      status?: string;
+      technicianId?: string;
+      deliveryId?: string;
+    }
+
+    let filter: Filter = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (technicianId) {
+      filter.technicianId = technicianId;
+    }
+
+    if (deliveryId) {
+      filter.deliveryId = deliveryId;
+    }
+
+    const requests = await Demande.find(filter);
+
+    res.status(200).json({
+      message: "Requests retrieved successfully",
+      data: requests
+    });
   } catch (err) {
-    res.status(404).json({
-      message: err,
+    console.error(err);
+    res.status(500).json({
+      message: "Internal Server Error",
     });
   }
 };
@@ -91,6 +118,7 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
       photos,
       status,
       clientId,
+      technicianId,
       comments
     } = req.body;
 
@@ -107,7 +135,8 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
         photos ||
         status ||
         clientId ||
-        comments
+        comments ||
+        technicianId
       )
     ) {
       return res
@@ -127,6 +156,7 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
       status?: any;
       clientId?: any;
       comments?: any;
+      technicianId?: any;
     } = {};
 
     if (category) selectedFields.category = category;
@@ -140,7 +170,10 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
     if (status) selectedFields.status = status;
     if (clientId) selectedFields.clientId = clientId;
     if (comments) selectedFields.comments = comments;
-
+    if (technicianId) {
+      selectedFields.technicianId = technicianId;
+      selectedFields.status = 'technicien affecté';
+    }
     const updatedRequest = await Demande.findByIdAndUpdate(requestId, selectedFields, { new: true });
 
     if (!updatedRequest) {
