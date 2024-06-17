@@ -18,7 +18,8 @@ interface IDemande {
     photo: string;
     status: typeof Status;
     clientId: any;
-    deliveryId: any;
+    arrivalDeliveryId: any;
+    departDeliveryId: any;
     technicianId: any;
     comments: IComments[];
 }
@@ -40,7 +41,8 @@ const demandeSchema = new Schema<IDemande>(
         photo: { type: String },
         status: { type: String, enum: Object.values(Status) },
         clientId: { type: Schema.Types.ObjectId, ref: 'User',},
-        deliveryId: { type: Schema.Types.ObjectId, ref: 'User',},
+        arrivalDeliveryId: { type: Schema.Types.ObjectId, ref: 'User',},
+        departDeliveryId: { type: Schema.Types.ObjectId, ref: 'User',},
         technicianId: { type: Schema.Types.ObjectId, ref: 'User',},
         comments: { type: [commentsSchema], },
     }, { timestamps: true, }

@@ -4,6 +4,7 @@ import { Demande } from "../models";
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 import { ObjectId } from 'mongodb';
+import { Status } from "../utils/enums";
 
 
 exports.create = async (
@@ -11,7 +12,7 @@ exports.create = async (
   res: Response
 ) => {
   try {
-    const { category, mark, range, model, imei, description, photo } = req.body;
+    const { category, mark, range, model, imei, description, photo, clientId } = req.body;
 
     await new Demande({
       category,
@@ -21,6 +22,7 @@ exports.create = async (
       imei,
       description,
       photo,
+      clientId,
       status: "Nouveau"
     }).save();
 
@@ -66,17 +68,19 @@ exports.count = async (req: Request, res: Response, next: NextFunction) => {
 };
 exports.list = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { status, technicianId, deliveryId } = req.query as { status: string; technicianId: string; deliveryId: string };
+    let requests;
+    const { status, technicianId, deliveryId, clientId } = req.query as { status: string; technicianId: string; deliveryId: string; clientId: string };
     interface Filter {
-      status?: string;
+      status?: string[];
       technicianId?: string;
-      deliveryId?: string;
+      clientId?: string;
+      $or?: [{ arrivalDeliveryId: string }, { departDeliveryId: string }];
     }
 
     let filter: Filter = {};
 
     if (status) {
-      filter.status = status;
+      filter.status = status.split(',');
     }
 
     if (technicianId) {
@@ -84,11 +88,18 @@ exports.list = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     if (deliveryId) {
-      filter.deliveryId = deliveryId;
+      filter.$or = [{ arrivalDeliveryId: deliveryId }, { departDeliveryId: deliveryId }];
     }
 
-    const requests = await Demande.find(filter);
+    if (clientId) {
+      filter.clientId = clientId;
+    }
 
+    if (status && (status.includes('En attente de réception') || status.includes('technicien affecté'))) {
+      requests = await Demande.find(filter).populate('clientId').populate('technicianId');
+    } else {
+      requests = await Demande.find(filter);
+    }
     res.status(200).json({
       message: "Requests retrieved successfully",
       data: requests
@@ -119,6 +130,8 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
       status,
       clientId,
       technicianId,
+      arrivalDeliveryId,
+      departDeliveryId,
       comments
     } = req.body;
 
@@ -136,7 +149,9 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
         status ||
         clientId ||
         comments ||
-        technicianId
+        technicianId ||
+        arrivalDeliveryId ||
+        departDeliveryId
       )
     ) {
       return res
@@ -157,6 +172,8 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
       clientId?: any;
       comments?: any;
       technicianId?: any;
+      arrivalDeliveryId?: any;
+      departDeliveryId?: any;
     } = {};
 
     if (category) selectedFields.category = category;
@@ -172,7 +189,15 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
     if (comments) selectedFields.comments = comments;
     if (technicianId) {
       selectedFields.technicianId = technicianId;
-      selectedFields.status = 'technicien affecté';
+      selectedFields.status = Status.TechnicianAssigned;
+    }
+    if (arrivalDeliveryId) {
+      selectedFields.arrivalDeliveryId = arrivalDeliveryId;
+      selectedFields.status = Status.AwaitReciever;
+    }
+    if (departDeliveryId) {
+      selectedFields.departDeliveryId = departDeliveryId;
+      selectedFields.status = Status.UnderDelivery;
     }
     const updatedRequest = await Demande.findByIdAndUpdate(requestId, selectedFields, { new: true });
 
