@@ -13,7 +13,9 @@ router
   .route("/:id")
   .delete(controller.delete);
 
-router.route("/").get(controller.list);
+router
+  .route("/")
+  .get(controller.list);
 
 router
   .route("/:id")
@@ -22,5 +24,13 @@ router
 router
   .route("/count")
   .get(controller.count);
+
+router
+  .route("/:id")
+  .get(controller.getDemandeById);
+
+router
+  .route("/:id")
+  .post(controller.addCommentToDemande);
 
 module.exports = router;

@@ -3,8 +3,8 @@ const { Status } = require("../utils/enums");
 import { Schema, model, ObjectId } from "mongoose";
 
 interface IComments {
-    demandeId: ObjectId;
-    userId: ObjectId;
+    userId: any;
+    msg: string;
 }
 
 interface IDemande {
@@ -12,7 +12,7 @@ interface IDemande {
     mark: string;
     range: string;
     model: string;
-    problem: string;
+    problem: string; // a supprimer
     imei: string;
     description: string;
     photo: string;
@@ -25,8 +25,9 @@ interface IDemande {
 }
 
 const commentsSchema = new Schema<IComments>({
-    demandeId: { type: Schema.Types.ObjectId, ref: 'Demande' },
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' ,},
+    msg: { type: String },
+
 }, { timestamps: true, });
 
 const demandeSchema = new Schema<IDemande>(

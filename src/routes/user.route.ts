@@ -21,6 +21,6 @@ router
 
 router
   .route("/count")
-  .get(verifyToken, authorize(["reviewer"]), controller.count);
+  .get(verifyToken, controller.count);
 
 module.exports = router;

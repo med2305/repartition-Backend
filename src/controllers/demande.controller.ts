@@ -217,4 +217,56 @@ exports.update = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
 };
+exports.getDemandeById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const requestId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(requestId)) {
+      return res.status(400).json({ error: "Invalid requestId" });
+    }
+    // Modify the query to populate only the name of the user in comments.userId
+    const request = await Demande.findById(requestId)
+      .populate({
+        path: 'comments.userId',
+        select: 'name' // Only fetch the name field from the user document
+      });
+    if (!request) {
+      return res.status(404).json({
+        message: "Request not found",
+      });
+    }
+    res.status(200).json({
+      message: "Request retrieved successfully",
+      data: request,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+}
 
+exports.addCommentToDemande = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { userId, msg } = req.body;
+
+  if (!userId || !msg) {
+    return res.status(400).send({ message: 'Missing userId or msg in request body.' });
+  }
+
+  try {
+    const updatedDemande = await Demande.findByIdAndUpdate(
+      id,
+      { $push: { comments: { userId, msg } } },
+      { new: true }
+    );
+
+    if (!updatedDemande) {
+      return res.status(404).send({ message: 'Demande not found.' });
+    }
+
+    res.status(200).send(updatedDemande);
+  } catch (error) {
+    res.status(500).send({ message: 'Error updating demande with comment.', error });
+  }
+};
