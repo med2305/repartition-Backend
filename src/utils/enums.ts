@@ -12,5 +12,5 @@ export enum Status {
   AwaitRepair = "En attente de réparation",
   AwaitDelivery = "En attente de livraison",
   UnderDelivery = "En cours de livraison",
-  Completed = "Termminé"
+  Completed = "Terminé"
 }

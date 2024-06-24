@@ -9,7 +9,7 @@ import crypto from 'crypto';
 
 exports.login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { identifier, password } = req.body;
+    const { identifier, password, stillLoggedIn } = req.body;
     const _user = await User.findOne({
       $and: [
         {
@@ -27,14 +27,15 @@ exports.login = async (req: Request, res: Response, next: NextFunction) => {
     const isMatch = await bcrypt.compare(password, _user.password);
     if (!isMatch) return res.status(404).json({ message: " mot de passe incorrect" });
 
-
+    const tokenOptions = stillLoggedIn ? { expiresIn: "10y" } : { expiresIn: "24h" }; 
+    
     const token = jwt.sign(
       {
         userId: _user._id,
         role: _user.role,
       },
       tokenKey,
-      { expiresIn: "168h" }
+      tokenOptions
     );
     res.status(200).json({
       message: "success",
