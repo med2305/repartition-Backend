@@ -1,4 +1,4 @@
-export {};
+export { };
 const express = require("express");
 const controller = require("../controllers/user.controller");
 const router = express.Router();
@@ -7,7 +7,7 @@ const authorize = require("../middleware/authorize");
 
 router
   .route("/")
-  .post( controller.createUser);
+  .post(controller.createUser);
 
 router
   .route("/:id")
@@ -17,10 +17,14 @@ router.route("/").get(controller.list);
 
 router
   .route("/:id")
-  .patch( controller.update);
+  .patch(controller.update);
 
 router
   .route("/count")
   .get(verifyToken, controller.count);
+
+router
+  .route("/:id")
+  .get( controller.listOne );
 
 module.exports = router;

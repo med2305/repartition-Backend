@@ -33,6 +33,7 @@ exports.login = async (req: Request, res: Response, next: NextFunction) => {
       {
         userId: _user._id,
         role: _user.role,
+        userName: _user.name
       },
       tokenKey,
       tokenOptions

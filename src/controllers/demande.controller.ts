@@ -5,7 +5,30 @@ const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 import { ObjectId } from 'mongodb';
 import { Status } from "../utils/enums";
+import { Socket } from 'socket.io';
+const socketIo = require("socket.io");
+const express = require("express");
+const http = require("http");
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
 
+io.on("connection", (socket: Socket) => {
+  console.log("New connection established");
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+
+  socket.on("project_done", (data: any) => {
+    console.log("Run 2nd");
+    io.emit("project_done", { message: data.message, id: data.id });
+  });
+  socket.on("new_project_assigned", (data: any) => {
+    console.log("Run 3rd");
+    io.emit("project_created", { message: data.message });
+  });
+});
 
 exports.create = async (
   req: Request,
@@ -270,3 +293,7 @@ exports.addCommentToDemande = async (req: Request, res: Response) => {
     res.status(500).send({ message: 'Error updating demande with comment.', error });
   }
 };
+
+server.listen(3045, () => {
+  console.log("Server is running on port 3045");
+});

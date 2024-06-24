@@ -81,6 +81,20 @@ exports.list = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
 };
+exports.listOne = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.params.id; // Assuming the user ID is passed as a URL parameter
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
 exports.update = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.params.id;
